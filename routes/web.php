@@ -45,5 +45,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/statistics', [DashboardController::class, 'statistics'])->name('statistics');
     Route::get('/admin/data-survey', [DataSurveyController::class, 'index'])->name('data-survey');
     Route::get('/admin/uji-sistem', [SystemTestController::class, 'index'])->name('admin.uji-sistem');
-    Route::post('/admin/uji-sistem/process', [SystemTestController::class, 'process'])->name('admin.uji-sistem.process');
+    Route::post('/admin/uji-sistem/process', [SystemTestController::class, 'process'])->name('admin.uji-sistem.test');
+    // Route untuk Halaman Riwayat
+    Route::get('/uji-sistem/riwayat', [SystemTestController::class, 'riwayat'])
+        ->name('admin.uji-sistem.history');
 });
