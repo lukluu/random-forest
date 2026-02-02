@@ -1,109 +1,172 @@
-@extends('layouts.admin') {{-- Sesuaikan dengan layout admin Anda --}}
+@extends('layouts.admin')
 
 @section('content')
 <div class="p-6">
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-800">Uji Sistem (Batch Testing)</h1>
-        <p class="text-gray-500">Upload file Excel (.xlsx) berisi ulasan untuk menguji akurasi model AI secara massal.</p>
-    </div>
+    <div class="max-w-5xl mx-auto">
 
-    {{-- BAGIAN 1: FORM UPLOAD --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <form action="{{ route('admin.uji-sistem.process') }}" method="POST" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-4 items-end">
-            @csrf
-            <div class="w-full md:w-1/2">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel</label>
-                <input type="file" name="file" required accept=".xlsx, .xls, .csv"
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-coffee-accent/10 file:text-coffee-accent hover:file:bg-coffee-accent/20 cursor-pointer border rounded-lg">
-                <p class="mt-1 text-xs text-gray-400">*Format: Kolom A berisi teks ulasan.</p>
+        {{-- Header Simple --}}
+        <div class="mb-6 flex items-center gap-3">
+            <div class="p-3 bg-white rounded-xl shadow-sm border border-gray-100">
+                <i class="fa-solid fa-flask text-2xl text-coffee-accent"></i>
             </div>
-
-            <div class="w-full md:w-auto">
-                <button type="submit" class="w-full px-6 py-2.5 bg-coffee-accent text-white font-medium rounded-lg hover:bg-coffee-dark transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-rocket"></i> Mulai Pengujian
-                </button>
-            </div>
-        </form>
-
-        {{-- Contoh Format --}}
-        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
-            <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
-            <div class="text-sm text-blue-800">
-                <span class="font-bold">Tips:</span> Pastikan file Excel Anda memiliki header <strong>"Ulasan"</strong> di baris pertama kolom A. Data ulasan dimulai dari baris kedua.
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Uji Kecerdasan AI</h1>
+                <p class="text-sm text-gray-500">Simulasi input user untuk melihat prediksi sentimen.</p>
             </div>
         </div>
-    </div>
 
-    {{-- BAGIAN 2: HASIL PENGUJIAN (Hanya Muncul Jika Ada Data) --}}
-    @if(isset($results))
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    {{-- Kartu Statistik Ringkas --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-            <p class="text-sm text-gray-500">Total Data</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $stats['total'] }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-green-200 shadow-sm bg-green-50/50">
-            <p class="text-sm text-green-600">Positif</p>
-            <p class="text-2xl font-bold text-green-700">{{ $stats['positif'] }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-red-200 shadow-sm bg-red-50/50">
-            <p class="text-sm text-red-600">Negatif</p>
-            <p class="text-2xl font-bold text-red-700">{{ $stats['negatif'] }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl border border-blue-200 shadow-sm bg-blue-50/50">
-            <p class="text-sm text-blue-600">Rata-rata Akurasi AI</p>
-            <p class="text-2xl font-bold text-blue-700">{{ number_format($stats['avg_confidence'], 1) }}%</p>
-        </div>
-    </div>
+            {{-- KOLOM KIRI: FORMULIR (Lebar 8/12) --}}
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 md:p-8">
 
-    {{-- Tabel Detail --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-            <h3 class="font-bold text-gray-800">Detail Hasil Prediksi</h3>
-            <span class="text-xs px-2 py-1 bg-gray-100 rounded text-gray-500">Selesai diproses</span>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                    <tr>
-                        <th class="px-6 py-3 font-semibold w-10">#</th>
-                        <th class="px-6 py-3 font-semibold">Teks Ulasan</th>
-                        <th class="px-6 py-3 font-semibold text-center">Prediksi Sentimen</th>
-                        <th class="px-6 py-3 font-semibold text-center">Confidence</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach($results as $index => $res)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 text-sm text-gray-400">{{ $index + 1 }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-700 max-w-lg">{{ $res['ulasan'] }}</td>
-                        <td class="px-6 py-4 text-center">
-                            @if($res['sentiment'] == 'Positif')
-                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">Positif</span>
-                            @elseif($res['sentiment'] == 'Netral')
-                            <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">Netral</span>
-                            @elseif($res['sentiment'] == 'Negatif')
-                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Negatif</span>
-                            @else
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Error</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <div class="w-16 bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
-                                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $res['confidence'] }}%"></div>
+                        <form action="{{ route('admin.uji-sistem.process') }}" method="POST" class="space-y-8">
+                            @csrf
+
+                            {{-- BAGIAN 1: SLIDER (VISUAL SAJA) --}}
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
+                                    1. Input Kriteria (Visual)
+                                </h3>
+
+                                <div class="space-y-5">
+                                    @php
+                                    $criteria = [
+                                    ['id' => 'rasa', 'label' => 'Cita Rasa', 'icon' => 'fa-mug-hot'],
+                                    ['id' => 'harga', 'label' => 'Harga', 'icon' => 'fa-tag'],
+                                    ['id' => 'pelayanan', 'label' => 'Pelayanan', 'icon' => 'fa-bell-concierge'],
+                                    ['id' => 'kebersihan', 'label' => 'Kebersihan', 'icon' => 'fa-broom'],
+                                    ['id' => 'keramahan', 'label' => 'Keramahan', 'icon' => 'fa-users'],
+                                    ];
+                                    @endphp
+
+                                    @foreach ($criteria as $item)
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                        {{-- Label di Kiri --}}
+                                        <label class="w-full sm:w-40 flex items-center gap-3 text-gray-700 font-medium text-sm shrink-0">
+                                            <span class="w-6 text-center text-coffee-accent"><i class="fa-solid {{ $item['icon'] }}"></i></span>
+                                            {{ $item['label'] }}
+                                        </label>
+
+                                        {{-- Slider di Tengah --}}
+                                        <div class="flex-1 relative h-6 flex items-center group">
+                                            <input type="range" id="{{ $item['id'] }}" min="1" max="5" value="3" step="1"
+                                                class="absolute w-full h-full opacity-0 cursor-pointer z-20"
+                                                oninput="updateSlider('{{ $item['id'] }}', this.value)">
+
+                                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden relative z-0">
+                                                <div id="track-{{ $item['id'] }}" class="h-full bg-coffee-accent transition-all duration-100" style="width: 50%"></div>
+                                            </div>
+
+                                            <div id="thumb-{{ $item['id'] }}" class="absolute w-4 h-4 bg-white border-2 border-coffee-accent rounded-full shadow transition-all duration-100 z-10 pointer-events-none transform -translate-x-1/2" style="left: 50%;"></div>
+                                        </div>
+
+                                        {{-- Angka di Kanan --}}
+                                        <div class="font-bold text-coffee-accent text-sm w-6 text-right" id="val-{{ $item['id'] }}">3</div>
+                                    </div>
+                                    @endforeach
                                 </div>
-                                <span class="text-xs font-medium text-gray-600">{{ number_format($res['confidence'], 0) }}%</span>
                             </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+
+                            {{-- BAGIAN 2: REVIEW TEXT (WAJIB) --}}
+                            <div>
+                                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
+                                    2. Teks Ulasan (Diproses AI)
+                                </h3>
+                                <div class="relative">
+                                    <textarea name="ulasan_manual" id="ulasan_manual" rows="3" required
+                                        class="w-full pl-4 pr-4 py-3 rounded-xl border border-gray-300 focus:border-coffee-accent focus:ring-1 focus:ring-coffee-accent transition-all placeholder-gray-400 text-gray-700 resize-none"
+                                        placeholder="Tulis ulasan simulasi di sini...">{{ $ulasan ?? '' }}</textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-coffee-dark hover:bg-coffee-primary text-white font-semibold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>Analisis AI</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- KOLOM KANAN: HASIL (Lebar 4/12) --}}
+            <div class="lg:col-span-4">
+                @if(isset($result))
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden sticky top-6 animate-fade-in-up">
+                    <div class="bg-coffee-dark p-4 text-center">
+                        <h3 class="font-bold text-white text-sm uppercase tracking-wide">Hasil Prediksi</h3>
+                    </div>
+
+                    <div class="p-6 text-center">
+
+                        {{-- Sentimen Besar --}}
+                        <div class="mb-6">
+                            @if($result['sentiment'] == 'Positif')
+                            <i class="fa-solid fa-face-smile text-5xl text-green-500 mb-2 block"></i>
+                            <span class="text-2xl font-black text-gray-800">POSITIF</span>
+                            @elseif($result['sentiment'] == 'Netral')
+                            <i class="fa-solid fa-face-meh text-5xl text-gray-400 mb-2 block"></i>
+                            <span class="text-2xl font-black text-gray-800">NETRAL</span>
+                            @else
+                            <i class="fa-solid fa-face-frown text-5xl text-red-500 mb-2 block"></i>
+                            <span class="text-2xl font-black text-gray-800">NEGATIF</span>
+                            @endif
+                        </div>
+
+                        {{-- Confidence Bar --}}
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-4 text-left">
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-xs font-bold text-gray-500">Keyakinan AI</span>
+                                <span class="text-sm font-bold text-coffee-accent">{{ number_format($result['confidence'], 1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-coffee-accent h-2 rounded-full transition-all duration-1000" style="width: {{ $result['confidence'] }}%"></div>
+                            </div>
+                        </div>
+
+                        {{-- Breakdown --}}
+                        <div class="space-y-2 text-left">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Detail Probabilitas:</p>
+                            @foreach($result['probs'] as $label => $prob)
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="capitalize text-gray-600">{{ $label }}</span>
+                                <span class="font-mono text-gray-500">{{ number_format($prob * 100, 1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-1">
+                                @php
+                                $color = match($label) {
+                                'positif' => 'bg-green-500',
+                                'negatif' => 'bg-red-500',
+                                default => 'bg-gray-400'
+                                };
+                                @endphp
+                                <div class="{{ $color }} h-1 rounded-full" style="width: {{ $prob * 100 }}%"></div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- State Kosong --}}
+                <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center text-gray-400 h-64 flex flex-col items-center justify-center">
+                    <i class="fa-solid fa-robot text-3xl mb-2 opacity-30"></i>
+                    <p class="text-xs">Hasil analisis akan muncul di sini.</p>
+                </div>
+                @endif
+            </div>
+
         </div>
     </div>
-    @endif
-
 </div>
+
+<script>
+    function updateSlider(id, value) {
+        document.getElementById('val-' + id).innerText = value;
+        let percent = (value - 1) / (5 - 1) * 100;
+        document.getElementById('track-' + id).style.width = percent + '%';
+        document.getElementById('thumb-' + id).style.left = percent + '%';
+    }
+</script>
 @endsection
