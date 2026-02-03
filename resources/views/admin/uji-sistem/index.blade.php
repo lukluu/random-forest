@@ -3,6 +3,31 @@
 @section('content')
 <div class="p-6">
 
+    {{-- =================================================================== --}}
+    {{-- [BARU] ALERT JIKA KONEKSI API GAGAL                                --}}
+    {{-- Ditampilkan hanya jika ada session 'error' dari Controller         --}}
+    {{-- =================================================================== --}}
+    @if(session('error'))
+    <div class="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4 shadow-sm animate-fade-in-up relative overflow-hidden">
+        {{-- Aksen Background --}}
+        <div class="absolute -right-10 -top-10 opacity-10">
+            <i class="fa-solid fa-triangle-exclamation text-9xl text-red-500"></i>
+        </div>
+
+        {{-- Ikon Utama --}}
+        <div class="bg-red-100 rounded-full p-4 text-red-600 shrink-0 z-10">
+            <i class="fa-solid fa-plug-circle-xmark text-3xl animate-pulse"></i>
+        </div>
+
+        {{-- Konten Teks --}}
+        <div class="z-10">
+            <h3 class="text-red-900 font-bold text-xl">Gagal Terhubung ke Model AI!</h3>
+        </div>
+    </div>
+    @endif
+    {{-- =================================================================== --}}
+
+
     {{-- WRAPPER UTAMA --}}
     <div class="w-full flex flex-col lg:flex-row items-start gap-8">
 
@@ -69,7 +94,7 @@
 
                         <hr class="border-gray-100">
 
-                        {{-- [BARU] 2. GROUND TRUTH (LABEL MANUAL) --}}
+                        {{-- 2. GROUND TRUTH (LABEL MANUAL) --}}
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
                                 2. Label Seharusnya (Ground Truth) <span class="text-red-500">*</span>
@@ -121,8 +146,9 @@
 
                         {{-- TOMBOL SUBMIT --}}
                         <div>
-                            <button type="submit" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg">
-                                <i class="fa-solid fa-microchip animate-pulse"></i>
+                            {{-- Disable tombol jika ada error koneksi agar tidak di-spam --}}
+                            <button type="submit" @if(session('error')) disabled @endif class="w-full bg-gray-800 hover:bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                                <i class="fa-solid fa-microchip @if(!session('error')) animate-pulse @endif"></i>
                                 <span>Proses Validasi</span>
                             </button>
                         </div>
@@ -133,7 +159,7 @@
 
         {{-- [KOLOM KANAN] : HASIL (STICKY) --}}
         <div class="w-full lg:w-[400px] shrink-0 sticky top-6">
-            @if(isset($result))
+            @if(isset($result) && !session('error'))
             <div class="bg-white rounded-2xl shadow-xl border border-coffee-accent/30 overflow-hidden animate-fade-in-up relative">
 
                 {{-- INFO MATCHING --}}
@@ -197,12 +223,22 @@
                 </div>
             </div>
             @else
-            <div class="bg-white rounded-2xl shadow-sm border-2 border-dashed border-gray-300 p-8 h-full min-h-[400px] flex flex-col items-center justify-center text-center">
-                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-robot text-4xl text-gray-300"></i>
+            {{-- STATE: MENUNGGU INPUT / ERROR --}}
+            <div class="bg-white rounded-2xl shadow-sm border-2 border-dashed {{ session('error') ? 'border-red-300 bg-red-50' : 'border-gray-300' }} p-8 h-full min-h-[400px] flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 rounded-full flex items-center justify-center mb-6 {{ session('error') ? 'bg-red-100 text-red-400' : 'bg-gray-50 text-gray-300' }}">
+                    @if(session('error'))
+                    <i class="fa-solid fa-triangle-exclamation text-4xl"></i>
+                    @else
+                    <i class="fa-solid fa-robot text-4xl"></i>
+                    @endif
                 </div>
+                @if(session('error'))
+                <h3 class="text-lg font-bold text-red-700 mb-2">Sistem Offline</h3>
+                <p class="text-sm text-red-500">Perbaiki koneksi ke API terlebih dahulu.</p>
+                @else
                 <h3 class="text-lg font-bold text-gray-700 mb-2">Menunggu Input</h3>
                 <p class="text-sm text-gray-400">Silakan isi formulir di samping untuk menguji sistem.</p>
+                @endif
             </div>
             @endif
         </div>
