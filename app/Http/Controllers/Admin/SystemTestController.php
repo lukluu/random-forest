@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class SystemTestController extends Controller
 {
-    /**
-     * Menampilkan halaman form uji sistem manual.
-     */
     public function index()
     {
         return view('admin.uji-sistem.index');
@@ -23,29 +20,25 @@ class SystemTestController extends Controller
      */
     public function process(Request $request)
     {
-        // 1. Validasi Input
+        // 1. Validasi Input (Tambahkan ground_truth)
         $request->validate([
             'ulasan_manual' => 'required|string|max:1000',
-            // Validasi Slider (Pastikan name di view sesuai: rasa, harga, dll)
-            'rasa'       => 'required|integer|min:1|max:5',
-            'harga'      => 'required|integer|min:1|max:5',
-            'pelayanan'  => 'required|integer|min:1|max:5',
-            'kebersihan' => 'required|integer|min:1|max:5',
-            'keramahan'  => 'required|integer|min:1|max:5',
+            'ground_truth'  => 'required|in:Positif,Netral,Negatif', // <--- INI PENTING
+            'rasa'          => 'required|integer|min:1|max:5',
+            'harga'         => 'required|integer|min:1|max:5',
+            'pelayanan'     => 'required|integer|min:1|max:5',
+            'kebersihan'    => 'required|integer|min:1|max:5',
+            'keramahan'     => 'required|integer|min:1|max:5',
         ]);
 
         $ulasan = $request->ulasan_manual;
+        $groundTruthInput = $request->ground_truth; // Ambil dari input manual
 
-        // 2. Hitung Rata-rata Skor (Opsional, untuk kelengkapan data)
+        // 2. Hitung Rata-rata Skor (Hanya untuk data pelengkap)
         $totalScore = $request->rasa + $request->harga + $request->pelayanan + $request->kebersihan + $request->keramahan;
         $avgScore   = $totalScore / 5;
 
-        // 3. Siapkan Variabel Hasil Default
-        $result = null;
-
-        // ==========================================================
-        // 4. INTEGRASI API FLASK (AI PREDICTION)
-        // ==========================================================
+        // 3. Integrasi API Flask
         try {
             $response = Http::timeout(5)->post('http://127.0.0.1:5000/predict', [
                 'ulasan' => $ulasan
@@ -54,49 +47,50 @@ class SystemTestController extends Controller
             if ($response->successful()) {
                 $json = $response->json();
 
-                // Siapkan data untuk View & DB
                 $result = [
                     'sentiment'  => ucfirst($json['sentimen'] ?? 'Error'),
                     'confidence' => 0,
                     'probs'      => $json['probabilitas'] ?? []
                 ];
 
-                // Ambil confidence score tertinggi
                 if (isset($json['probabilitas'])) {
                     $result['confidence'] = max($json['probabilitas']) * 100;
                 }
 
-                // ==========================================================
-                // 5. SIMPAN KE DATABASE (Tabel uji_sistem)
-                // ==========================================================
-                UjiSistem::create([
-                    'user_id'          => Auth::id(), // ID Admin yang sedang login
+                // 4. Cek Konsistensi (Match vs Mismatch)
+                $analisisKonsistensi = ($result['sentiment'] == $groundTruthInput) ? 'Cocok' : 'Tidak Cocok';
 
-                    // Data Skor
+                // 5. Simpan ke Database
+                UjiSistem::create([
+                    'user_id'          => Auth::id(),
                     'score_rasa'       => $request->rasa,
                     'score_harga'      => $request->harga,
                     'score_pelayanan'  => $request->pelayanan,
                     'score_kebersihan' => $request->kebersihan,
                     'score_keramahan'  => $request->keramahan,
                     'score_average'    => $avgScore,
+                    'ground_truth'     => $groundTruthInput, // Simpan input manual user
 
-                    // Data Text & Hasil AI
-                    'review'           => $ulasan, // Masuk ke kolom 'review' sesuai migration baru
+                    'review'           => $ulasan,
                     'sentiment'        => $result['sentiment'],
-                    'confidence_score' => (string) $result['confidence'], // Simpan sebagai string/float
-                    'probabilities'    => $result['probs'], // Disimpan sebagai JSON
+                    'confidence_score' => (string) $result['confidence'],
+                    'probabilities'    => $result['probs'],
                 ]);
+
+                return view('admin.uji-sistem.index', compact(
+                    'result',
+                    'ulasan',
+                    'avgScore',
+                    'analisisKonsistensi',
+                    'groundTruthInput' // Kirim balik input user untuk ditampilkan di alert
+                ));
             } else {
                 return back()->with('error', 'Gagal mendapatkan respon dari AI Server.');
             }
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan koneksi ke AI: ' . $e->getMessage());
         }
-
-        // 6. Kembalikan ke View dengan Hasil
-        return view('admin.uji-sistem.index', compact('result', 'ulasan'));
     }
-
     /**
      * Menampilkan riwayat pengujian.
      */
@@ -107,5 +101,85 @@ class SystemTestController extends Controller
 
         // Pastikan view yang dipanggil sesuai nama file Anda
         return view('admin.uji-sistem.riwayat-uji', compact('riwayat'));
+    }
+    public function analisis()
+    {
+        $dataset = UjiSistem::all();
+        $totalData = $dataset->count();
+        $correctCount = 0;
+        $mismatchCount = 0;
+
+        $matrix = [
+            'Positif' => ['Positif' => 0, 'Netral' => 0, 'Negatif' => 0],
+            'Netral'  => ['Positif' => 0, 'Netral' => 0, 'Negatif' => 0],
+            'Negatif' => ['Positif' => 0, 'Netral' => 0, 'Negatif' => 0],
+        ];
+
+        foreach ($dataset as $data) {
+            // Gunakan Ground Truth dari Database (Input Manual User)
+            $manualLabel = $data->ground_truth ?? 'Netral';
+
+            if ($manualLabel === $data->sentiment) {
+                $correctCount++;
+            } else {
+                $mismatchCount++;
+            }
+
+            if (isset($matrix[$manualLabel][$data->sentiment])) {
+                $matrix[$manualLabel][$data->sentiment]++;
+            }
+        }
+
+        $accuracy = $totalData > 0 ? ($correctCount / $totalData) * 100 : 0;
+
+        $mismatches = $dataset->filter(function ($data) {
+            return $data->ground_truth !== $data->sentiment;
+        });
+
+        $chartData = [
+            'series'   => [$correctCount, $mismatchCount],
+            'labels'   => ['Prediksi Benar', 'Salah Prediksi'],
+            'colors'   => ['#10B981', '#EF4444'],
+            'accuracy' => number_format($accuracy, 0) . '%'
+        ];
+
+        return view('admin.uji-sistem.analisis', compact('totalData', 'accuracy', 'matrix', 'mismatches', 'chartData'));
+    }
+
+    /**
+     * Menampilkan Detail Satu Pengujian
+     */
+    public function show($id)
+    {
+        $data = UjiSistem::findOrFail($id);
+        return view('admin.uji-sistem.riwayat-detail', compact('data'));
+    }
+
+    /**
+     * Menghapus Satu Data Pengujian
+     */
+    public function destroy($id)
+    {
+        try {
+            $data = UjiSistem::findOrFail($id);
+            $data->delete();
+            return back()->with('success', 'Data pengujian berhasil dihapus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus data.');
+        }
+    }
+
+    /**
+     * Reset (Hapus Semua) Riwayat Pengujian
+     */
+    public function resetHistory()
+    {
+        try {
+            // Menghapus semua data di tabel uji_sistems
+            UjiSistem::truncate();
+            return back()->with('success', 'Seluruh riwayat pengujian berhasil di-reset.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mereset data.');
+        }
     }
 }

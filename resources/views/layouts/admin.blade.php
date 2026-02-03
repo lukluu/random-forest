@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Instrument Sans', sans-serif;
@@ -52,31 +52,31 @@
         <!-- Menu -->
         <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
 
-            <!-- Dashboard -->
             <a href="{{ route('dashboard') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
-           {{ request()->routeIs('dashboard') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+       {{ request()->routeIs('dashboard') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                 <i class="fa-solid fa-gauge-high w-5 text-center"></i>
                 <span class="font-medium">Dashboard</span>
             </a>
 
-            <!-- Statistik -->
-            <a href="{{ route('statistics') }}"
-                class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl transition-all">
+            <a href="{{ route('dashboard.statistics') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+       {{ request()->routeIs('dashboard.statistics') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                 <i class="fa-solid fa-chart-column w-5 text-center"></i>
                 <span class="font-medium">Laporan Statistik</span>
             </a>
 
-            <!-- Data Survey -->
             <a href="{{ route('data-survey') }}"
-                class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl transition-all">
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+       {{ request()->routeIs('data-survey*') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                 <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
-                <span class="font-medium">Data Survey Pelanggan</span>
+                <span class="font-medium">Ulasan Pelanggan</span>
             </a>
-            <a href="{{ route('admin.uji-sistem') }}"
-                class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl transition-all">
-                <i class="fa-solid fa-vial w-5 text-center"></i>
 
+            <a href="{{ route('admin.uji-sistem') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+       {{ request()->routeIs('admin.uji-sistem*') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <i class="fa-solid fa-vial w-5 text-center"></i>
                 <span class="font-medium">Uji Sistem</span>
             </a>
 

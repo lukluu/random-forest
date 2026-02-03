@@ -19,6 +19,7 @@ class UjiSistem extends Model
         'score_kebersihan',
         'score_keramahan',
         'score_average',
+        'ground_truth',
         'review',
         'sentiment',
         'confidence_score',

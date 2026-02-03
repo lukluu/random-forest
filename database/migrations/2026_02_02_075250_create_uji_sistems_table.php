@@ -25,6 +25,7 @@ return new class extends Migration
 
             // 3. Kolom Bantuan
             $table->decimal('score_average', 3, 2);
+            $table->enum('ground_truth', ['Positif', 'Netral', 'Negatif'])->nullable();
 
             // 4. Data Review & Hasil AI
             $table->text('review')->nullable(); // Input teks ulasan

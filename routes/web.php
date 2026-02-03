@@ -42,11 +42,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Halaman Statistik
-    Route::get('/admin/statistics', [DashboardController::class, 'statistics'])->name('statistics');
+    Route::get('/admin/statistics', [DashboardController::class, 'statistics'])->name('dashboard.statistics');
     Route::get('/admin/data-survey', [DataSurveyController::class, 'index'])->name('data-survey');
+    Route::get('/admin/data-survey/export', [DataSurveyController::class, 'export'])->name('data-survey.export');
+    Route::get('/admin/data-survey/{id}', [DataSurveyController::class, 'show'])->name('data-survey.show');
+    Route::delete('/admin/data-survey/reset', [DataSurveyController::class, 'reset'])->name('data-survey.reset');
     Route::get('/admin/uji-sistem', [SystemTestController::class, 'index'])->name('admin.uji-sistem');
     Route::post('/admin/uji-sistem/process', [SystemTestController::class, 'process'])->name('admin.uji-sistem.test');
-    // Route untuk Halaman Riwayat
     Route::get('/uji-sistem/riwayat', [SystemTestController::class, 'riwayat'])
         ->name('admin.uji-sistem.history');
+    Route::get('/admin/uji-sistem/analisis', [SystemTestController::class, 'analisis'])
+        ->name('admin.uji-sistem.analysis');
+    Route::delete('/admin/uji-sistem/reset', [SystemTestController::class, 'resetHistory'])->name('admin.uji-sistem.reset');
+    Route::get('/admin/uji-sistem/{id}', [SystemTestController::class, 'show'])->name('admin.uji-sistem.show');
+    Route::delete('/admin/uji-sistem/{id}', [SystemTestController::class, 'destroy'])->name('admin.uji-sistem.delete');
 });
