@@ -52,15 +52,20 @@
                         <span class="w-32 text-sm font-medium text-gray-600">{{ $label }}</span>
 
                         {{-- Progress Bar Container --}}
-                        <div class="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden relative">
+                        <div class="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                             {{-- Bar Isi --}}
-                            <div class="h-full bg-coffee-accent rounded-full transition-all duration-500"
+                            {{--
+                                PERBAIKAN: 
+                                1. Menggunakan bg-[#8C5E3C] (kode hex) agar warna pasti keluar.
+                                2. Menggunakan syntax {{ }} untuk style width agar lebih bersih.
+                            --}}
+                            <div class="h-full bg-[#8C5E3C] rounded-full transition-all duration-500 ease-out"
                                 style="width: {{ ($value / 5) * 100 }}%">
                             </div>
                         </div>
 
                         {{-- Nilai Angka --}}
-                        <span class="w-8 text-sm font-bold text-coffee-accent text-right">
+                        <span class="w-8 text-sm font-bold text-[#8C5E3C] text-right">
                             {{ $value }}
                         </span>
                     </div>
