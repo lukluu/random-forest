@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DataSurveyController;
 use App\Http\Controllers\Admin\SystemTestController;
+use App\Http\Controllers\Admin\UjiDatasetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,5 +57,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/admin/uji-sistem/reset', [SystemTestController::class, 'resetHistory'])->name('admin.uji-sistem.reset');
     Route::get('/admin/uji-sistem/{id}', [SystemTestController::class, 'show'])->name('admin.uji-sistem.show');
     Route::delete('/admin/uji-sistem/{id}', [SystemTestController::class, 'destroy'])->name('admin.uji-sistem.delete');
-    Route::post('/admin/uji-sistem/dataset', [SystemTestController::class, 'testDataset'])->name('admin.uji-sistem.dataset');
+
+    Route::get('/admin/uji-sistem/dataset/index', [UjiDatasetController::class, 'index'])->name('admin.uji-dataset.index');
+    Route::post('/admin/uji-sistem/dataset/process', [UjiDatasetController::class, 'testDataset'])->name('admin.uji-dataset');
+    // [BARU] Route Riwayat Uji Dataset
+    Route::get('/admin/uji-sistem/dataset/riwayat', [UjiDatasetController::class, 'riwayat'])->name('admin.uji-dataset.riwayat');
+    // [BARU] Route Reset Semua Data Dataset
+    Route::delete('/admin/uji-sistem/dataset/reset', [UjiDatasetController::class, 'resetDataset'])->name('admin.uji-dataset.reset');
+    // [BARU] Route Analisis Dataset
+    Route::get('/admin/uji-sistem/dataset/analisis', [UjiDatasetController::class, 'analisis'])->name('admin.uji-dataset.analisis');
 });

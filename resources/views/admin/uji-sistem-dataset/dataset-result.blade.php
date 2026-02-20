@@ -7,7 +7,7 @@
             <h1 class="text-2xl font-bold text-gray-800">Hasil Uji Analisis Dataset</h1>
             <p class="text-sm text-gray-500">Menganalisis <b>{{ $count }}</b> baris ulasan dari seluruh isi file CSV.</p>
         </div>
-        <a href="{{ route('admin.uji-sistem') }}" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition-all shadow-sm flex items-center gap-2">
+        <a href="{{ route('admin.uji-dataset.index') }}" class="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-medium rounded-xl transition-all shadow-sm flex items-center gap-2">
             <i class="fa-solid fa-arrow-left"></i> Kembali ke Form
         </a>
     </div>

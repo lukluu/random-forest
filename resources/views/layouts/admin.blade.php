@@ -77,7 +77,13 @@
                 class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
        {{ request()->routeIs('admin.uji-sistem*') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                 <i class="fa-solid fa-vial w-5 text-center"></i>
-                <span class="font-medium">Uji Sistem</span>
+                <span class="font-medium">Uji Sistem Input</span>
+            </a>
+            <a href="{{ route('admin.uji-dataset.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all
+       {{ request()->routeIs('admin.uji-dataset*') ? 'bg-[#8C5E3C] text-white shadow-md' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                <i class="fa-solid fa-vial w-5 text-center"></i>
+                <span class="font-medium">Uji Sistem Dataset</span>
             </a>
 
         </nav>

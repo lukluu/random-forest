@@ -116,8 +116,9 @@
                         @foreach($history as $item)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($item['YMD'])->translatedFormat('d F Y H:i') }}
+                                {{ \Carbon\Carbon::parse($item['created_at'])->format('d F Y') }}
                             </td>
+
 
                             <td class="px-6 py-4 text-sm font-medium text-coffee-dark">{{ $item['name'] }}</td>
                             <td class="px-6 py-4 align-top">

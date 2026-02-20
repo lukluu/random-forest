@@ -66,7 +66,7 @@
         <div class="absolute top-0 right-0 w-20 h-20 bg-green-50 rounded-bl-full -mr-4 -mt-4 opacity-50 group-hover:scale-110 transition-transform"></div>
         <div class="relative z-10 flex justify-between items-start">
             <div>
-                <p class="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wide">Sentimen AI</p>
+                <p class="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wide">Sentimen Model</p>
                 <h3 class="text-4xl font-bold 
                     @if($stats['sentiment_dominant'] == 'Positif') text-green-600 
                     @elseif($stats['sentiment_dominant'] == 'Netral') text-gray-600 
@@ -92,7 +92,6 @@
     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-[#E6E0DC]">
         <div class="flex justify-between items-center mb-6">
             <h3 class="font-bold text-[#5D4037] text-lg">Performa Aspek Penilaian</h3>
-            <button class="text-xs bg-[#F8F5F2] hover:bg-[#E6E0DC] px-3 py-1 rounded-lg text-[#8C5E3C] transition-colors">Download PDF</button>
         </div>
         <div id="chart-aspects"></div>
     </div>
@@ -133,7 +132,7 @@
                     <th class="px-6 py-4 font-semibold">Pelanggan</th>
                     <th class="px-6 py-4 font-semibold">Rating</th>
                     <th class="px-6 py-4 font-semibold">Review</th>
-                    <th class="px-6 py-4 font-semibold">Sentimen AI</th>
+                    <th class="px-6 py-4 font-semibold">Sentimen Model</th>
                     <th class="px-6 py-4 font-semibold text-right">Waktu</th>
                 </tr>
             </thead>
