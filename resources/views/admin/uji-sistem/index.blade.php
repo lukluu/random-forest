@@ -4,24 +4,30 @@
 <div class="p-6">
 
     {{-- =================================================================== --}}
-    {{-- [BARU] ALERT JIKA KONEKSI API GAGAL                                --}}
-    {{-- Ditampilkan hanya jika ada session 'error' dari Controller         --}}
+    {{-- ALERT ERROR (Sesi Controller & Validasi Form)                        --}}
     {{-- =================================================================== --}}
-    @if(session('error'))
-    <div class="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 flex items-center gap-4 shadow-sm animate-fade-in-up relative overflow-hidden">
-        {{-- Aksen Background --}}
+    @if(session('error') || $errors->any())
+    <div class="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 flex items-start gap-4 shadow-sm relative overflow-hidden">
         <div class="absolute -right-10 -top-10 opacity-10">
             <i class="fa-solid fa-triangle-exclamation text-9xl text-red-500"></i>
         </div>
-
-        {{-- Ikon Utama --}}
         <div class="bg-red-100 rounded-full p-4 text-red-600 shrink-0 z-10">
             <i class="fa-solid fa-plug-circle-xmark text-3xl animate-pulse"></i>
         </div>
-
-        {{-- Konten Teks --}}
         <div class="z-10">
-            <h3 class="text-red-900 font-bold text-xl">Gagal Terhubung ke Model AI!</h3>
+            <h3 class="text-red-900 font-bold text-xl mb-1">Terjadi Kesalahan!</h3>
+            @if(session('error'))
+            <p class="text-red-700 text-sm mb-1">{{ session('error') }}</p>
+            @endif
+
+            {{-- Tangkap error validasi --}}
+            @if($errors->any())
+            <ul class="list-disc list-inside text-red-700 text-sm mt-2 ml-2">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            @endif
         </div>
     </div>
     @endif
@@ -42,9 +48,12 @@
                             <i class="fa-solid fa-flask text-coffee-accent"></i>
                             Simulasi & Validasi
                         </h2>
-                        <p class="text-sm text-gray-500">Uji model AI dan bandingkan dengan label manual.</p>
+                        <p class="text-sm text-gray-500">Uji model dan bandingkan</p>
                     </div>
                     <div class="flex items-center gap-3">
+                        <button type="button" onclick="openDatasetModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-medium rounded-lg transition-colors border border-emerald-100">
+                            <i class="fa-solid fa-file-csv"></i> Uji Dataset
+                        </button>
                         <a href="{{ route('admin.uji-sistem.analysis') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg transition-colors border border-indigo-100">
                             <i class="fa-solid fa-chart-pie"></i> Analisis
                         </a>
@@ -245,4 +254,93 @@
 
     </div>
 </div>
+{{-- ========================================================= --}}
+{{-- KOMPONEN TERPISAH: MODAL DIALOG UPLOAD DATASET --}}
+{{-- ========================================================= --}}
+<div id="datasetModal" class="fixed inset-0 z-[100] hidden bg-gray-900/60 backdrop-blur-sm flex items-center justify-center transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300">
+
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+            <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <i class="fa-solid fa-file-csv text-emerald-600"></i> Upload Uji Dataset
+            </h3>
+            <button onclick="closeDatasetModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+
+        <form action="{{ route('admin.uji-sistem.dataset') }}" method="POST" enctype="multipart/form-data" onsubmit="showLoading()">
+            @csrf
+            <div class="p-6 space-y-4">
+                {{-- Box Upload File --}}
+                <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-emerald-500 transition-colors bg-white relative group cursor-pointer">
+                    <input type="file" name="dataset_file" id="dataset_file" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required onchange="updateFileName()">
+
+                    <i class="fa-solid fa-cloud-arrow-up text-5xl text-gray-300 mb-3 group-hover:text-emerald-500 transition-colors"></i>
+                    <p class="text-sm font-bold text-gray-600 mb-1">Klik atau Drag File CSV di sini</p>
+                    <p class="text-xs text-gray-400 leading-relaxed">Pastikan file berisi kolom <b class="text-gray-600">text/ulasan</b>. Jika ada kolom <b class="text-gray-600">stars/rating</b>, sistem akan menguji persentase akurasinya secara otomatis.</p>
+
+                    {{-- Tampilan Nama File Terpilih --}}
+                    <div id="file-name-display" class="mt-4 hidden mx-auto inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold border border-emerald-200">
+                        <i class="fa-solid fa-file-csv"></i> <span id="file-name-text" class="truncate max-w-[200px]"></span>
+                    </div>
+                </div>
+
+                {{-- Alert Info --}}
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                    <p class="text-xs text-blue-800 leading-relaxed">Harap tunggu beberapa saat setelah menekan tombol.
+                    </p>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
+                <button type="button" onclick="closeDatasetModal()" class="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
+                <button type="submit" id="btn-submit-dataset" class="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> <span>Mulai Uji Analisis Dataset</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openDatasetModal() {
+        const modal = document.getElementById('datasetModal');
+        modal.classList.remove('hidden');
+        // Memberi jeda 10ms agar animasi transisi CSS berfungsi
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.children[0].classList.remove('scale-95');
+        }, 10);
+    }
+
+    function closeDatasetModal() {
+        const modal = document.getElementById('datasetModal');
+        modal.classList.add('opacity-0');
+        modal.children[0].classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    function updateFileName() {
+        const input = document.getElementById('dataset_file');
+        const display = document.getElementById('file-name-display');
+        const text = document.getElementById('file-name-text');
+
+        if (input.files.length > 0) {
+            text.textContent = input.files[0].name;
+            display.classList.remove('hidden');
+        } else {
+            display.classList.add('hidden');
+        }
+    }
+
+    function showLoading() {
+        const btn = document.getElementById('btn-submit-dataset');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Sedang Memproses...</span>';
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+    }
+</script>
 @endsection

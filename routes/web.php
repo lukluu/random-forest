@@ -56,4 +56,5 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/admin/uji-sistem/reset', [SystemTestController::class, 'resetHistory'])->name('admin.uji-sistem.reset');
     Route::get('/admin/uji-sistem/{id}', [SystemTestController::class, 'show'])->name('admin.uji-sistem.show');
     Route::delete('/admin/uji-sistem/{id}', [SystemTestController::class, 'destroy'])->name('admin.uji-sistem.delete');
+    Route::post('/admin/uji-sistem/dataset', [SystemTestController::class, 'testDataset'])->name('admin.uji-sistem.dataset');
 });
