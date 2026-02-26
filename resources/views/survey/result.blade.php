@@ -94,6 +94,101 @@
         </div>
     </div>
 
+    {{-- ======================================================= --}}
+    {{-- BAGIAN BARU: FAKTOR DOMINAN KESELURUHAN (DI BAWAH KARTU SENTIMEN) --}}
+    {{-- ======================================================= --}}
+    <div class="bg-white rounded-3xl shadow-xl border border-[#E6E0DC] overflow-hidden mb-12">
+
+        {{-- Header Banner --}}
+        <div class="bg-gradient-to-r from-[#C2A383] to-coffee-dark p-8 text-center text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2 relative z-10">Sorotan & Statistik Pengunjung</h2>
+            <p class="text-white/80 relative z-10">Akumulasi penilaian dari seluruh pelanggan setia Kopi Kita</p>
+        </div>
+
+        <div class="p-8 md:p-10">
+
+            {{-- KARTU STATISTIK (DIBAGI 2 KOLOM) --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+
+                {{-- 1. Kartu Pemenang Utama (Kiri) --}}
+                <div class="flex flex-col items-center justify-center p-6 bg-yellow-50/50 rounded-2xl border-2 border-yellow-200 shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
+                    <span class="text-4xl mb-3">🏆</span>
+                    <h3 class="text-sm text-yellow-800/70 font-bold uppercase tracking-widest mb-1">Paling Disukai</h3>
+                    <div class="text-3xl font-extrabold text-coffee-dark mb-2">{{ $dominan }}</div>
+                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-yellow-100 text-yellow-800 font-bold text-sm">
+                        ⭐ {{ number_format($dominanScore, 2) }} <span class="text-xs font-normal text-yellow-700 ml-1">/ 5.00</span>
+                    </div>
+                </div>
+
+                {{-- 2. Kartu Total Responden (Kanan) --}}
+                <div class="flex flex-col items-center justify-center p-6 bg-blue-50/50 rounded-2xl border-2 border-blue-200 shadow-sm transform transition-all hover:-translate-y-1 hover:shadow-md">
+                    <span class="text-4xl mb-3">👥</span>
+                    <h3 class="text-sm text-blue-800/70 font-bold uppercase tracking-widest mb-1">Total Responden</h3>
+                    <div class="text-5xl font-extrabold text-blue-900 mb-2">{{ $totalResponden }}</div>
+                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 text-blue-800 font-medium text-sm">
+                        Orang telah mengisi survey
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Leaderboard Semua Indikator --}}
+            @php
+            $sortedScores = collect($avgScores)->sortDesc();
+            $icons = [
+            'Rasa' => '☕',
+            'Harga' => '💰',
+            'Pelayanan' => '🛎️',
+            'Kebersihan' => '✨',
+            'Keramahan' => '😊'
+            ];
+            $rank = 1;
+            @endphp
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-coffee-dark mb-4 border-b pb-2">Peringkat Indikator Dominan</h3>
+
+                @foreach($sortedScores as $indikator => $skor)
+                @php
+                $persentase = ($skor / 5) * 100;
+                $isDominan = ($rank === 1);
+                @endphp
+
+                <div class="group flex items-center gap-4 p-3 rounded-xl transition-all duration-300 hover:bg-gray-50 border border-transparent hover:border-gray-100">
+                    {{-- Nomor Peringkat & Icon --}}
+                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full {{ $isDominan ? 'bg-yellow-100 text-2xl' : 'bg-gray-100 text-xl' }} font-bold shadow-inner transition-transform group-hover:scale-110">
+                        {{ $icons[$indikator] ?? '📌' }}
+                    </div>
+
+                    {{-- Bar Indikator --}}
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-end mb-1.5">
+                            <span class="font-bold {{ $isDominan ? 'text-coffee-primary' : 'text-gray-700 group-hover:text-coffee-dark' }} transition-colors">
+                                {{ $rank }}. {{ $indikator }}
+                            </span>
+                            <span class="text-sm font-bold text-gray-700">
+                                {{ number_format($skor, 2) }}
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden border border-gray-200">
+                            <div class="h-full rounded-full transition-all duration-1000 ease-out {{ $isDominan ? 'bg-gradient-to-r from-[#C2A383] to-[#8C6239]' : 'bg-[#DCCEC0] group-hover:bg-[#C2A383]' }}"
+                                style="width: {{ $persentase }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @php $rank++; @endphp
+                @endforeach
+            </div>
+        </div>
+    </div>
+    {{-- ======================================================= --}}
+
     <div class="space-y-6">
         <div class="flex items-center justify-between px-2">
             <h2 class="text-2xl font-bold text-coffee-primary">Riwayat Survey Terbaru</h2>

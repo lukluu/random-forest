@@ -133,6 +133,9 @@ class SurveyController extends Controller
     /**
      * Menampilkan Hasil
      */
+    /**
+     * Menampilkan Hasil
+     */
     public function result()
     {
         $lastSurveyId = session('last_survey_id');
@@ -149,6 +152,24 @@ class SurveyController extends Controller
             ->take(5)
             ->get();
 
-        return view('survey.result', compact('currentResult', 'history'));
+        // ==========================================================
+        // FITUR BARU: HITUNG FAKTOR DOMINAN (DARI SEMUA DATA SURVEY)
+        // ==========================================================
+        $totalResponden = UserSurvey::count();
+
+        // Hitung rata-rata setiap kolom
+        $avgScores = [
+            'Rasa'       => UserSurvey::avg('score_rasa') ?? 0,
+            'Harga'      => UserSurvey::avg('score_harga') ?? 0,
+            'Pelayanan'  => UserSurvey::avg('score_pelayanan') ?? 0,
+            'Kebersihan' => UserSurvey::avg('score_kebersihan') ?? 0,
+            'Keramahan'  => UserSurvey::avg('score_keramahan') ?? 0,
+        ];
+
+        // Cari faktor dengan nilai rata-rata tertinggi (Dominan)
+        $dominan = array_keys($avgScores, max($avgScores))[0]; // Mengambil nama indikator
+        $dominanScore = max($avgScores); // Mengambil nilainya
+
+        return view('survey.result', compact('currentResult', 'history', 'avgScores', 'totalResponden', 'dominan', 'dominanScore'));
     }
 }
