@@ -77,7 +77,7 @@
             <i class="fa-solid fa-database absolute -bottom-2 -right-2 text-5xl text-gray-50"></i>
         </div>
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Akurasi AI</p>
+            <p class="text-xs text-gray-400 font-bold uppercase mb-1">Akurasi Model</p>
             <h3 class="text-3xl font-black {{ $accuracy >= 80 ? 'text-emerald-600' : 'text-orange-500' }}">
                 {{ number_format($accuracy, 1) }}%
             </h3>
@@ -111,7 +111,7 @@
         {{-- DIAGRAM KOMPOSISI (DOUGHNUT CHART) --}}
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
             <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-chart-pie text-purple-500"></i> Komposisi Prediksi AI
+                <i class="fa-solid fa-chart-pie text-purple-500"></i> Komposisi Prediksi Model
             </h3>
             <div class="relative h-64 w-full flex items-center justify-center">
                 <canvas id="compositionChart"></canvas>

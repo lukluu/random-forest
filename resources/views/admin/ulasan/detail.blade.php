@@ -76,7 +76,7 @@
                 @endif
 
                 @if($survey->confidence_score)
-                <p class="text-xs text-gray-400 mt-2">AI Confidence: {{ $survey->confidence_score }}%</p>
+                <p class="text-xs text-gray-400 mt-2">Tingkay Keyakinan: {{ $survey->confidence_score }}%</p>
                 @endif
             </div>
         </div>

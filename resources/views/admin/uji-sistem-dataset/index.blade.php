@@ -9,7 +9,7 @@
             <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <i class="fa-solid fa-file-csv text-emerald-600"></i> Uji Analisis Dataset
             </h1>
-            <p class="text-sm text-gray-500">Unggah file CSV berisi banyak ulasan untuk diuji sekaligus oleh Model AI.</p>
+            <p class="text-sm text-gray-500">Unggah file CSV berisi banyak ulasan untuk diuji sekaligus oleh Model Sentimen.</p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -86,14 +86,14 @@
                             <i class="fa-solid fa-bullseye text-orange-500"></i> Fitur Deteksi Akurasi
                         </h4>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Jika CSV Anda memiliki kolom <b class="text-gray-800">stars/rating</b> (angka 1-5) atau <b class="text-gray-800">ground_truth</b>, sistem akan otomatis menghitung persentase keakuratan model AI.
+                            Jika CSV Anda memiliki kolom <b class="text-gray-800">stars/rating</b> (angka 1-5) atau <b class="text-gray-800">ground_truth</b>, sistem akan otomatis menghitung persentase keakuratan model Sentimen.
                         </p>
                     </div>
                 </div>
             </div>
 
             <div class="px-8 py-5 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-                <span class="text-xs text-gray-400" id="loading-text">Pastikan server AI (Flask) sudah menyala.</span>
+                <span class="text-xs text-gray-400" id="loading-text">Pastikan server model (Flask) sudah menyala.</span>
                 <button type="submit" id="btn-submit-dataset" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center gap-3 transform hover:-translate-y-0.5">
                     <i class="fa-solid fa-microchip"></i> <span>Mulai Uji Analisis Dataset</span>
                 </button>
